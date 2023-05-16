@@ -2,11 +2,10 @@
 import Header from './components/Header.vue';
 import SearchModule from './components/SearchModule.vue';
 import ts from '@mapbox/timespace';
+import { v4 as uuidv4 } from 'uuid';
 
 import { GoogleMap, Marker } from 'vue3-google-map';
-
-const weatherK = "59d8f83c0d0672671941c70c99060910";
-const googleMapsAPI = ""
+import { WEATHER_K, GOOGLE_MAPS_API, NUM_RESULTS_PER_PAGE } from './utils/constant';
 
 export default {
   components: {
@@ -58,19 +57,26 @@ export default {
     },
 
     async handleSearchClick() {
-      const uid = Math.random().toString(16).slice(2)
-      const response = await fetch(`https://api.openweathermap.org/geo/1.0/direct?q=${this.searchText}&appid=${weatherK}`, {mode:'cors'})
-      const weatherGeocode = await response.json();
+      const uid = uuidv4();
+    
+      let weatherGeocode
+      try {
+        const response = await fetch(`https://api.openweathermap.org/geo/1.0/direct?q=${this.searchText}&appid=${WEATHER_K}`, {mode:'cors'})
+        weatherGeocode = await response.json();
+      } catch (err) {
+        window.alert('Oops, something went wrong. Please try again later')
+      }
 
       if (weatherGeocode.length === 0) {
+        this.searchText = ""
         return;
       }
 
       const timestamp = Date.now();
       const point = [weatherGeocode[0].lon, weatherGeocode[0].lat];
-      const time = ts.getFuzzyLocalTimeFromPoint(timestamp, point);
+      const localTimeAtSearchLocation = ts.getFuzzyLocalTimeFromPoint(timestamp, point);
       
-      this.localTime = time.toString();
+      this.localTime = localTimeAtSearchLocation.toString();
 
       this.updateFlag = false;
 
@@ -80,7 +86,7 @@ export default {
         lat: weatherGeocode[0].lat,
         lng: weatherGeocode[0].lon,
         searchTime: new Date(),
-        localTimeAtSearch: time.toString(),
+        localTimeAtSearch: localTimeAtSearchLocation.toString(),
         deleteFlag: false,
       }
 
@@ -108,19 +114,19 @@ export default {
         if ((this.currPage + 1) > this.numberOfPages) {
           return;
         }
-        indexOfLastPost = (this.currPage + 1) * 10; 
-        indexOfFirstPost = indexOfLastPost - 10;
+        indexOfLastPost = (this.currPage + 1) * NUM_RESULTS_PER_PAGE; 
+        indexOfFirstPost = indexOfLastPost - NUM_RESULTS_PER_PAGE;
         this.currPage = this.currPage + 1
       } else if (value === "-") {
         if ((this.currPage - 1) <= 0) {
           return;
         }
-        indexOfLastPost = (this.currPage - 1) * 10; 
-        indexOfFirstPost = indexOfLastPost - 10;
+        indexOfLastPost = (this.currPage - 1) * NUM_RESULTS_PER_PAGE; 
+        indexOfFirstPost = indexOfLastPost - NUM_RESULTS_PER_PAGE;
         this.currPage = this.currPage - 1
       } else {
-        indexOfLastPost = value * 10; 
-        indexOfFirstPost = indexOfLastPost - 10;
+        indexOfLastPost = value * NUM_RESULTS_PER_PAGE; 
+        indexOfFirstPost = indexOfLastPost - NUM_RESULTS_PER_PAGE;
         this.currPage = value
       }
 
@@ -145,6 +151,7 @@ export default {
     handleDeleteSearchHistory() {
       this.updateFlag = true;
 
+      // to use array.filter
       let i = 0;
       const tempSearchHistory = [...this.searchHistory];
       while (i < tempSearchHistory.length) {
@@ -180,6 +187,7 @@ export default {
     },
 
     numberOfPages() {
+      // see if i can put to util function
       if (this.numberOfPages <= 5) {
         let i = 0;
         const tempPaginationArray = [];
@@ -234,7 +242,6 @@ export default {
     },  
   }
 }
-
 </script>
 
 <template>
@@ -257,7 +264,7 @@ export default {
       />
       <div v-if="loadingMap === false" className="h-full w-full">
         <GoogleMap 
-          :api-key="googleMapsAPI"
+          :api-key="GOOGLE_MAPS_API"
           :center="geoLocation"
           :zoom="11"
           style="width: 100%; height: 100%"
@@ -282,18 +289,3 @@ export default {
     </div>
   </div>
 </template>
-
-<style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
-}
-</style>

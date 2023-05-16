@@ -13,6 +13,7 @@
     "@mapbox/timespace": "^2.0.4",
     "@types/mapbox__mapbox-gl-geocoder": "^4.7.3",
     "tz-lookup": "^6.1.25",
+    "uuid": "^9.0.0",
     "vue": "^3.2.47",
     "vue3-google-map": "^0.15.0"
   },
