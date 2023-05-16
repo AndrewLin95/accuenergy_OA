@@ -44,3 +44,4 @@ REACT_APP_MAP_API="API_KEY"
 4. Unit / Integration testing
 5. Backend for storing or aggregating data
 6. User Profiles and Authentication
+7. Improved Error Handling
