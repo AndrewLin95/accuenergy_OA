@@ -45,3 +45,5 @@ REACT_APP_MAP_API="API_KEY"
 5. Backend for storing or aggregating data
 6. User Profiles and Authentication
 7. Improved Error Handling
+
+#### For a full list of git changes, please visit this github repo: https://github.com/AndrewLin95/Accuenergy
