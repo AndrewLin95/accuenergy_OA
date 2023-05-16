@@ -151,26 +151,8 @@ export default {
     handleDeleteSearchHistory() {
       this.updateFlag = true;
 
-      // to use array.filter
-      let i = 0;
-      const tempSearchHistory = [...this.searchHistory];
-      while (i < tempSearchHistory.length) {
-        if (tempSearchHistory[i].deleteFlag) {
-          tempSearchHistory.splice(i, 1);
-        } else {
-          i++;
-        }
-      }
-
-      let j = 0;
-      const tempDisplayData = [...this.searchHistoryDisplayData]
-      while (j < tempDisplayData.length) {
-        if (tempDisplayData[j].deleteFlag) {
-          tempDisplayData.splice(j, 1);
-        } else {
-          j++;
-        }
-      }
+      const tempSearchHistory = this.searchHistory.filter(item => !item.deleteFlag);
+      const tempDisplayData = this.searchHistoryDisplayData.filter(item => !item.deleteFlag);
 
       this.searchHistoryDisplayData = tempDisplayData;
       this.searchHistory = tempSearchHistory;
@@ -187,7 +169,6 @@ export default {
     },
 
     numberOfPages() {
-      // see if i can put to util function
       if (this.numberOfPages <= 5) {
         let i = 0;
         const tempPaginationArray = [];
